@@ -60,3 +60,32 @@ IsForeignTransaction: Indicator of whether the transaction was made in a foreign
 IsHighRiskCountry: Indicator of whether the transaction occurred in a high-risk country.
 IsProxyUsed: Indicator of whether a proxy was used during the transaction.
 
+Power BI Dashboard - Transaction Analysis
+
+Page 1: Overview Dashboard
+Top Row:
+
+Card Visuals:
+Sum of TransactionAmount
+Sum of AvgTransactionAmount
+Sum of FraudFlag
+Middle Row:
+
+KPI Chart: Sum of TransactionAmount and AvgTransactionAmount by TransactionType
+Pie Chart: Sum of FraudFlag
+Line Chart: Sum of TransactionAmount and FraudFlag by Year
+Bottom Row:
+
+Map Chart: Sum of TransactionAmount and FraudFlag by Location
+Line Chart: Count of TransactionType by FraudFlag
+Stacked Bar Chart: Sum of FraudFlag by Timestamp
+Page 2: Transaction Amount by Transaction ID
+Stacked Column Chart: Sum of TransactionAmount by TransactionID
+Page 3: Fraud Analysis
+Donut Chart: Sum of TransactionAmount by FraudFlag
+Page 4: Transaction Trends Over Time
+Line Chart: Sum of FraudFlag and Sum of TransactionAmount by Timestamp
+Page 5: Fraud Pattern Visualization
+Tree Map: Sum of TransactionAmount and Timestamp by FraudFlag
+Page 6: Previous Transaction Interval Analysis
+Clustered Column Chart: Sum of TransactionAmount by PreviousTransactionInterval
