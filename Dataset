@@ -1,0 +1,90 @@
+!pip install --upgrade gspread pandas
+
+from google.colab import auth
+auth.authenticate_user()
+
+import gspread
+from google.auth import default
+
+creds, _ = default()
+gc = gspread.authorize(creds)
+
+#  import libraries
+import pandas as pd
+from datetime import datetime, timedelta
+import random
+
+# Function to generate random IP address
+def generate_ip():
+    return '.'.join(str(random.randint(0, 255)) for _ in range(4))
+
+# Function to generate random timestamp
+def generate_timestamp(start, end):
+    return start + timedelta(seconds=random.randint(0, int((end - start).total_seconds())))
+
+# Data generation
+data = []
+start_time = datetime(2024, 6, 14, 0, 0, 0)
+end_time = datetime(2024, 6, 14, 23, 59, 59)
+card_numbers = ['123456xxxxxx7890', '987654xxxxxx3210', '567890xxxxxx1234']
+device_ids = ['D001', 'D002', 'D003', 'D004', 'D005']
+browser_info = ['Chrome 91', 'Firefox 88', 'Safari 14', 'Edge 89']
+locations = ['New York, USA', 'Los Angeles, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan']
+high_risk_countries = ['Paris, France', 'Tokyo, Japan']
+
+for i in range(1, 101):
+    card_number = random.choice(card_numbers)
+    timestamp = generate_timestamp(start_time, end_time)
+    transaction_amount = round(random.uniform(10, 5000), 2)
+    merchant_id = f'M{str(random.randint(1, 5)).zfill(3)}'
+    location = random.choice(locations)
+    transaction_type = random.choice(['Purchase', 'Online Payment'])
+    previous_transaction_interval = random.randint(1000, 7200)
+    daily_transaction_count = random.randint(1, 5)
+    daily_transaction_amount = round(random.uniform(50, 7000), 2)
+    avg_transaction_amount = round(daily_transaction_amount / daily_transaction_count, 2)
+    fraud_flag = random.choice([0, 1])
+    device_id = random.choice(device_ids)
+    ip_address = generate_ip()
+    browser_information = random.choice(browser_info)
+    distance_from_home = f'{random.randint(1, 7000)} miles'
+    distance_from_last_transaction = f'{random.randint(0, 5000)} miles'
+    is_foreign_transaction = 1 if location not in ['New York, USA', 'Los Angeles, USA'] else 0
+    is_high_risk_country = 1 if location in high_risk_countries else 0
+    is_proxy_used = random.choice([0, 1])
+
+    data.append([
+        i, timestamp, card_number, transaction_amount, merchant_id, location, transaction_type,
+        previous_transaction_interval, daily_transaction_count, daily_transaction_amount, avg_transaction_amount,
+        fraud_flag, device_id, ip_address, browser_information, distance_from_home, distance_from_last_transaction,
+        is_foreign_transaction, is_high_risk_country, is_proxy_used
+    ])
+
+# Create DataFrame
+columns = [
+    'TransactionID', 'Timestamp', 'CardNumber', 'TransactionAmount', 'MerchantID', 'Location', 'TransactionType',
+    'PreviousTransactionInterval', 'DailyTransactionCount', 'DailyTransactionAmount', 'AvgTransactionAmount',
+    'FraudFlag', 'DeviceID', 'IP Address', 'BrowserInformation', 'DistanceFromHome', 'DistanceFromLastTransaction',
+    'IsForeignTransaction', 'IsHighRiskCountry', 'IsProxyUsed'
+]
+df = pd.DataFrame(data, columns=columns)
+
+# Create a new Google Sheet
+sh = gc.create('Credit Card Fraud Dataset')
+
+# Select the first sheet
+worksheet = sh.get_worksheet(0)
+
+# Set the DataFrame as the content of the worksheet
+worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+
+# Provide the URL to the Google Sheet
+sheet_url = f"https://docs.google.com/spreadsheets/d/{sh.id}/edit"
+print("Google Sheet URL:", sheet_url)
+
+
+# Convert Timestamp values to strings
+df['Timestamp'] = df['Timestamp'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S'))
+
+# Update the Google Sheet with the modified DataFrame
+worksheet.update([df.columns.values.tolist()] + df.values.tolist())
